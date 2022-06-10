@@ -27,11 +27,13 @@ namespace vlkn {
 		void CreatePipeline();
 		void CreateCommandBuffers();
 		void DrawFrame();
+		void RecreateSwapchain();
+		void RecordCommandBuffers(int ImageIndex);
 
 
 		Window window{WIDTH, HEIGHT, "Vulkan Window"};
 		VulkanDevice Device{ window };
-		Swapchain swapchain{ Device, window.getExtent() };
+		std::unique_ptr<Swapchain> swapchain;
 		std::unique_ptr<Pipeline> pipeline;
 		VkPipelineLayout PipelineLayout;
 		std::vector<VkCommandBuffer> CommandBuffers;

@@ -17,12 +17,17 @@ namespace vlkn {
 		bool ShouldClose() { return glfwWindowShouldClose(WindowHandle); }
 
 		VkExtent2D getExtent() { return { static_cast<uint32_t>(Width), static_cast<uint32_t>(Height)	 }; }
+		bool WasWindowResized() { return FramebufferResized; }
+		void ResetWindowResizedFlag() { FramebufferResized = false; }
+
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 	private:
+		static void FramebufferResizedCallback(GLFWwindow *window, int Width, int Height);
 		void InitWindow();
 
-		const int Width;
-		const int Height;
+		int Width;
+		int Height;
+		bool FramebufferResized;
 		std::string WindowName;
 
 		GLFWwindow* WindowHandle;

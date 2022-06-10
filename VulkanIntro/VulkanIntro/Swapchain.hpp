@@ -19,7 +19,7 @@ class Swapchain {
   ~Swapchain();
 
   Swapchain(const Swapchain&) = delete;
-  void operator=(const Swapchain&) = delete;
+  Swapchain& operator=(const Swapchain&) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
   VkRenderPass getRenderPass() { return renderPass; }
