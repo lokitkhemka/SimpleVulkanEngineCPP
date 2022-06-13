@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <array>
+#include <cassert>
 
 
 vlkn::App::App()
@@ -80,11 +81,11 @@ void vlkn::App::CreatePipelineLayout()
 
 void vlkn::App::CreatePipeline()
 {
+	assert(swapchain != nullptr && "Cannot create pipeline before swapchain");
+	assert(PipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 	PipelineConfigInfo PipelineConfig{};
 	Pipeline::DefaultPipelineConfigInfo(
-		PipelineConfig,
-		swapchain->width(),
-		swapchain->height());
+		PipelineConfig);
 
 	PipelineConfig.renderPass = swapchain->getRenderPass();
 	PipelineConfig.pipelineLayout = PipelineLayout;
@@ -111,18 +112,35 @@ void vlkn::App::CreateCommandBuffers()
 
 }
 
+void vlkn::App::FreeCommandBuffers()
+{
+	vkFreeCommandBuffers(Device.device(), Device.getCommandPool(), static_cast<uint32_t>(CommandBuffers.size()), CommandBuffers.data());
+	CommandBuffers.clear();
+}
+
 void vlkn::App::DrawFrame()
 {
 	uint32_t ImageIndex;
 	auto result = swapchain->acquireNextImage(&ImageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		RecreateSwapchain();
+		return;
+	}
 
 	if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 	{
 		throw std::runtime_error("Failed to acquire Swapchain Image");
 	}
 
+	RecordCommandBuffers(ImageIndex);
 	result = swapchain->submitCommandBuffers(&CommandBuffers[ImageIndex], &ImageIndex);
-
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.WasWindowResized()) {
+		window.ResetWindowResizedFlag();
+		RecreateSwapchain();
+		return;
+	}
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to Present Swapchain Image");
@@ -139,7 +157,20 @@ void vlkn::App::RecreateSwapchain()
 	}
 
 	vkDeviceWaitIdle(Device.device());
-	swapchain = std::make_unique<Swapchain>(Device, extent);
+
+	if (swapchain == nullptr)
+	{
+		swapchain = std::make_unique<Swapchain>(Device, extent);
+	}
+	else {
+		swapchain = std::make_unique<Swapchain>(Device, extent, std::move(swapchain));
+		if (swapchain->imageCount() != CommandBuffers.size())
+		{
+			FreeCommandBuffers();
+			CreateCommandBuffers();
+		}
+	}
+	
 	CreatePipeline();
 }
 
@@ -170,6 +201,19 @@ void vlkn::App::RecordCommandBuffers(int ImageIndex)
 
 
 	vkCmdBeginRenderPass(CommandBuffers[ImageIndex], &RenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast<float>(swapchain->getSwapChainExtent().width);
+	viewport.height = static_cast<float>(swapchain->getSwapChainExtent().height);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	VkRect2D scissor{ {0, 0}, swapchain->getSwapChainExtent() };
+	vkCmdSetViewport(CommandBuffers[ImageIndex], 0, 1, &viewport);
+	vkCmdSetScissor(CommandBuffers[ImageIndex], 0, 1, &scissor);
+
+
 	pipeline->bind(CommandBuffers[ImageIndex]);
 	model->Bind(CommandBuffers[ImageIndex]);
 	model->Draw(CommandBuffers[ImageIndex]);

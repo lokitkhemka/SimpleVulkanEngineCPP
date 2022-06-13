@@ -9,8 +9,7 @@ namespace vlkn
 		PipelineConfigInfo(const PipelineConfigInfo&) = delete;
 		PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 		PipelineConfigInfo() = default;
-		VkViewport viewport;
-		VkRect2D scissor;
+
 		VkPipelineViewportStateCreateInfo viewportInfo;
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
 		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -18,6 +17,8 @@ namespace vlkn
 		VkPipelineColorBlendAttachmentState colorBlendAttachment;
 		VkPipelineColorBlendStateCreateInfo colorBlendInfo;
 		VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+		std::vector<VkDynamicState> DynamicStateEnables;
+		VkPipelineDynamicStateCreateInfo DynamicStateInfo;
 		VkPipelineLayout pipelineLayout = nullptr;
 		VkRenderPass renderPass = nullptr;
 		uint32_t subpass = 0;
@@ -32,7 +33,7 @@ namespace vlkn
 		Pipeline& operator=(const Pipeline&) = delete;
 
 		void bind(VkCommandBuffer CommandBuffer);
-		static void DefaultPipelineConfigInfo(PipelineConfigInfo& ConfigInfo, uint32_t width, uint32_t height);
+		static void DefaultPipelineConfigInfo(PipelineConfigInfo& ConfigInfo);
 	private:
 		static std::vector<char> ReadFile(const std::string& FilePath);
 		void CreateGraphicsPipeline(const std::string& VertFilePath, const std::string& FragFilePath, const PipelineConfigInfo& ConfigInfo);

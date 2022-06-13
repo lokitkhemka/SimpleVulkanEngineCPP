@@ -13,13 +13,15 @@ namespace vlkn {
 
     Swapchain::Swapchain(VulkanDevice &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {
-  createSwapChain();
-  createImageViews();
-  createRenderPass();
-  createDepthResources();
-  createFramebuffers();
-  createSyncObjects();
-}
+        init();
+    }
+
+    Swapchain::Swapchain(VulkanDevice& deviceRef, VkExtent2D extent, std::shared_ptr<Swapchain>Previous)
+        : device{ deviceRef }, windowExtent{ extent }, oldSwapchain{ Previous } {
+        init();
+        oldSwapchain = nullptr;
+    }
+
 
     Swapchain::~Swapchain() {
   for (auto imageView : swapChainImageViews) {
@@ -119,6 +121,16 @@ VkResult Swapchain::submitCommandBuffers(
   return result;
 }
 
+void Swapchain::init()
+{
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createDepthResources();
+    createFramebuffers();
+    createSyncObjects();
+}
+
 void Swapchain::createSwapChain() {
   SwapChainSupportDetails swapChainSupport = device.getSwapChainSupport();
 
@@ -162,7 +174,8 @@ void Swapchain::createSwapChain() {
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
 
-  createInfo.oldSwapchain = VK_NULL_HANDLE;
+  createInfo.oldSwapchain = oldSwapchain ? oldSwapchain->swapChain : nullptr;
+  ;
 
   if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");

@@ -26,6 +26,7 @@ namespace vlkn {
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
+		void FreeCommandBuffers();
 		void DrawFrame();
 		void RecreateSwapchain();
 		void RecordCommandBuffers(int ImageIndex);

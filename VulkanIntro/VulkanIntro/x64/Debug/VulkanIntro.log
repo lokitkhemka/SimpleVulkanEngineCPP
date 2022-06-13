@@ -1,2 +1,5 @@
-﻿  Swapchain.cpp
+﻿  App.cpp
+  Swapchain.cpp
+  main.cpp
+  Generating Code...
   VulkanIntro.vcxproj -> C:\Users\Loukit\Desktop\VulkanEngine\VulkanIntro\x64\Debug\VulkanIntro.exe
