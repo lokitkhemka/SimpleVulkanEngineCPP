@@ -1,10 +1,20 @@
 #include "App.hpp"
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 #include <stdexcept>
 #include <array>
 #include <cassert>
 
+namespace vlkn {
+	struct SimplePushConstantData {
+		glm::vec2 Offset;
+		glm::vec3 Color;
+	};
 
+}
 vlkn::App::App()
 {
 	LoadModels();
@@ -66,12 +76,18 @@ void vlkn::App::LoadModels()
 
 void vlkn::App::CreatePipelineLayout()
 {
+	VkPushConstantRange PushConstRange{};
+	PushConstRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	PushConstRange.offset = 0;
+	PushConstRange.size = sizeof(SimplePushConstantData);
+
+
 	VkPipelineLayoutCreateInfo PipelineLayoutInfo{};
 	PipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	PipelineLayoutInfo.setLayoutCount = 0;
 	PipelineLayoutInfo.pSetLayouts = nullptr;
-	PipelineLayoutInfo.pushConstantRangeCount = 0;
-	PipelineLayoutInfo.pPushConstantRanges = nullptr;
+	PipelineLayoutInfo.pushConstantRangeCount = 1;
+	PipelineLayoutInfo.pPushConstantRanges = &PushConstRange;
 
 	if (vkCreatePipelineLayout(Device.device(), &PipelineLayoutInfo, nullptr, &PipelineLayout) != VK_SUCCESS)
 	{
@@ -216,7 +232,18 @@ void vlkn::App::RecordCommandBuffers(int ImageIndex)
 
 	pipeline->bind(CommandBuffers[ImageIndex]);
 	model->Bind(CommandBuffers[ImageIndex]);
-	model->Draw(CommandBuffers[ImageIndex]);
+
+	for (int j = 0; j < 4; j++)
+	{
+		SimplePushConstantData Push{};
+		Push.Offset = { 0.0f, -0.4f + j * 0.25f };
+		Push.Color = { 0.0f, 0.0f, 0.2f + 0.2f * j };
+
+		vkCmdPushConstants(CommandBuffers[ImageIndex], PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
+		model->Draw(CommandBuffers[ImageIndex]);
+	}
+
+	
 
 	vkCmdEndRenderPass(CommandBuffers[ImageIndex]);
 
