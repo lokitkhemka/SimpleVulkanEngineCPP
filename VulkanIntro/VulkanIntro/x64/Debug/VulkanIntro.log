@@ -7,4 +7,4 @@
   Window.cpp
   Generating Code...
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  VulkanIntro.vcxproj -> C:\Users\louki\OneDrive\Desktop\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
+  VulkanIntro.vcxproj -> C:\Users\louki\OneDrive\Desktop\git\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
