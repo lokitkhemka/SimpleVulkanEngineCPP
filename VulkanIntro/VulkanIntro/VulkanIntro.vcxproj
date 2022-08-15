@@ -167,6 +167,7 @@ pause</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
+    <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="Swapchain.hpp" />
     <ClInclude Include="VulkanDevice.hpp" />

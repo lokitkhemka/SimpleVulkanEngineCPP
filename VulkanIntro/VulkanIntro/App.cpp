@@ -10,8 +10,9 @@
 
 namespace vlkn {
 	struct SimplePushConstantData {
+		glm::mat2 Transform{1.0f};
 		glm::vec2 Offset;
-		glm::vec3 Color;
+		alignas(16) glm::vec3 Color;
 	};
 
 }
@@ -192,6 +193,8 @@ void vlkn::App::RecreateSwapchain()
 
 void vlkn::App::RecordCommandBuffers(int ImageIndex)
 {
+	static int frame = 0;
+	frame = (frame + 1) % 10000;
 	VkCommandBufferBeginInfo BeginInfo{};
 
 	BeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -209,7 +212,7 @@ void vlkn::App::RecordCommandBuffers(int ImageIndex)
 	RenderPassInfo.renderArea.extent = swapchain->getSwapChainExtent();
 
 	std::array<VkClearValue, 2> ClearValues{};
-	ClearValues[0].color = { 0.1f,0.1f,0.1f,1.0f };
+	ClearValues[0].color = { 0.01f,0.01f,0.01f,1.0f };
 	ClearValues[1].depthStencil = { 1.0f, 0 };
 
 	RenderPassInfo.clearValueCount = static_cast<uint32_t>(ClearValues.size());
@@ -236,7 +239,7 @@ void vlkn::App::RecordCommandBuffers(int ImageIndex)
 	for (int j = 0; j < 4; j++)
 	{
 		SimplePushConstantData Push{};
-		Push.Offset = { 0.0f, -0.4f + j * 0.25f };
+		Push.Offset = { -0.5f + frame*0.0002f, -0.4f + j * 0.25f };
 		Push.Color = { 0.0f, 0.0f, 0.2f + 0.2f * j };
 
 		vkCmdPushConstants(CommandBuffers[ImageIndex], PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
