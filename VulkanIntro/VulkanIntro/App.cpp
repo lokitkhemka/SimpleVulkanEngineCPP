@@ -3,6 +3,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <stdexcept>
 #include <array>
@@ -18,7 +19,7 @@ namespace vlkn {
 }
 vlkn::App::App()
 {
-	LoadModels();
+	LoadGameObjects();
 	CreatePipelineLayout();
 	RecreateSwapchain();
 	CreateCommandBuffers();
@@ -40,28 +41,28 @@ void vlkn::App::run()
 	vkDeviceWaitIdle(Device.device());
 }
 
-void vlkn::App::sierpinski(
-	std::vector<Model::Vertex>& vertices,
-	int depth,
-	glm::vec2 left,
-	glm::vec2 right,
-	glm::vec2 top) {
-	if (depth <= 0) {
-		vertices.push_back({ top });
-		vertices.push_back({ right });
-		vertices.push_back({ left });
-	}
-	else {
-		auto leftTop = 0.5f * (left + top);
-		auto rightTop = 0.5f * (right + top);
-		auto leftRight = 0.5f * (left + right);
-		sierpinski(vertices, depth - 1, left, leftRight, leftTop);
-		sierpinski(vertices, depth - 1, leftRight, right, rightTop);
-		sierpinski(vertices, depth - 1, leftTop, rightTop, top);
-	}
-}
+//void vlkn::App::sierpinski(
+//	std::vector<Model::Vertex>& vertices,
+//	int depth,
+//	glm::vec2 left,
+//	glm::vec2 right,
+//	glm::vec2 top) {
+//	if (depth <= 0) {
+//		vertices.push_back({ top });
+//		vertices.push_back({ right });
+//		vertices.push_back({ left });
+//	}
+//	else {
+//		auto leftTop = 0.5f * (left + top);
+//		auto rightTop = 0.5f * (right + top);
+//		auto leftRight = 0.5f * (left + right);
+//		sierpinski(vertices, depth - 1, left, leftRight, leftTop);
+//		sierpinski(vertices, depth - 1, leftRight, right, rightTop);
+//		sierpinski(vertices, depth - 1, leftTop, rightTop, top);
+//	}
+//}
 
-void vlkn::App::LoadModels()
+void vlkn::App::LoadGameObjects()
 {
 	std::vector<Model::Vertex> vertices{
 		{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -72,7 +73,16 @@ void vlkn::App::LoadModels()
 	/*std::vector<Model::Vertex> vertices{};
 	sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });*/
 
-	model = std::make_unique<Model>(Device, vertices);
+	auto model = std::make_shared<Model>(Device, vertices);
+
+	auto Tri = GameObject::CreateGameObject();
+	Tri.Model = model;
+	Tri.Color = { 0.1f, 0.8f, 0.1f };
+	Tri.Transform2D.Translation.x = 0.2f;
+	Tri.Transform2D.Scale = { 2.0f, 0.5f };
+	Tri.Transform2D.Rotation = 0.25f * glm::two_pi<float>();
+
+	GameObjects.push_back(std::move(Tri));
 }
 
 void vlkn::App::CreatePipelineLayout()
@@ -135,6 +145,25 @@ void vlkn::App::FreeCommandBuffers()
 	CommandBuffers.clear();
 }
 
+void vlkn::App::RenderGameObjects(VkCommandBuffer CommandBuffer)
+{
+	pipeline->bind(CommandBuffer);
+
+	for (auto& Obj : GameObjects)
+	{
+		Obj.Transform2D.Rotation = glm::mod(Obj.Transform2D.Rotation + 0.001f, glm::two_pi<float>());
+		SimplePushConstantData Push{};
+		Push.Offset = Obj.Transform2D.Translation;
+		Push.Color = Obj.Color;
+		Push.Transform = Obj.Transform2D.Mat2();
+
+		vkCmdPushConstants(CommandBuffer, PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
+		Obj.Model->Bind(CommandBuffer);
+		Obj.Model->Draw(CommandBuffer);
+	}
+}
+
+
 void vlkn::App::DrawFrame()
 {
 	uint32_t ImageIndex;
@@ -193,8 +222,6 @@ void vlkn::App::RecreateSwapchain()
 
 void vlkn::App::RecordCommandBuffers(int ImageIndex)
 {
-	static int frame = 0;
-	frame = (frame + 1) % 10000;
 	VkCommandBufferBeginInfo BeginInfo{};
 
 	BeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -232,21 +259,7 @@ void vlkn::App::RecordCommandBuffers(int ImageIndex)
 	vkCmdSetViewport(CommandBuffers[ImageIndex], 0, 1, &viewport);
 	vkCmdSetScissor(CommandBuffers[ImageIndex], 0, 1, &scissor);
 
-
-	pipeline->bind(CommandBuffers[ImageIndex]);
-	model->Bind(CommandBuffers[ImageIndex]);
-
-	for (int j = 0; j < 4; j++)
-	{
-		SimplePushConstantData Push{};
-		Push.Offset = { -0.5f + frame*0.0002f, -0.4f + j * 0.25f };
-		Push.Color = { 0.0f, 0.0f, 0.2f + 0.2f * j };
-
-		vkCmdPushConstants(CommandBuffers[ImageIndex], PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
-		model->Draw(CommandBuffers[ImageIndex]);
-	}
-
-	
+	RenderGameObjects(CommandBuffers[ImageIndex]);
 
 	vkCmdEndRenderPass(CommandBuffers[ImageIndex]);
 
@@ -255,3 +268,4 @@ void vlkn::App::RecordCommandBuffers(int ImageIndex)
 		throw std::runtime_error("Failed to Record Command Buffers");
 	}
 }
+

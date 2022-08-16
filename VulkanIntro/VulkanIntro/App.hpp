@@ -4,7 +4,7 @@
 #include "Pipeline.hpp"
 #include "VulkanDevice.hpp"
 #include "Swapchain.hpp"
-#include "Model.hpp"
+#include "GameObject.hpp"
 
 #include <memory>
 #include <vector>
@@ -22,7 +22,7 @@ namespace vlkn {
 		App& operator=(const App&) = delete;
 		void run();
 	private:
-		void LoadModels();
+		void LoadGameObjects();
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
@@ -30,6 +30,7 @@ namespace vlkn {
 		void DrawFrame();
 		void RecreateSwapchain();
 		void RecordCommandBuffers(int ImageIndex);
+		void RenderGameObjects(VkCommandBuffer CommandBuffer);
 
 
 		Window window{WIDTH, HEIGHT, "Vulkan Window"};
@@ -38,15 +39,15 @@ namespace vlkn {
 		std::unique_ptr<Pipeline> pipeline;
 		VkPipelineLayout PipelineLayout;
 		std::vector<VkCommandBuffer> CommandBuffers;
-		std::unique_ptr<Model> model;
+		std::vector<GameObject> GameObjects;
 
 
-		void sierpinski(
+		/*void sierpinski(
 			std::vector<Model::Vertex>& vertices,
 			int depth,
 			glm::vec2 left,
 			glm::vec2 right,
-			glm::vec2 top);
+			glm::vec2 top);*/
 
 	};
 }
