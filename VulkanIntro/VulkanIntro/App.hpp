@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Window.hpp"
-#include "Pipeline.hpp"
 #include "VulkanDevice.hpp"
-#include "Swapchain.hpp"
+#include "Renderer.hpp"
 #include "GameObject.hpp"
 
 #include <memory>
@@ -23,22 +22,11 @@ namespace vlkn {
 		void run();
 	private:
 		void LoadGameObjects();
-		void CreatePipelineLayout();
-		void CreatePipeline();
-		void CreateCommandBuffers();
-		void FreeCommandBuffers();
-		void DrawFrame();
-		void RecreateSwapchain();
-		void RecordCommandBuffers(int ImageIndex);
-		void RenderGameObjects(VkCommandBuffer CommandBuffer);
 
 
 		Window window{WIDTH, HEIGHT, "Vulkan Window"};
-		VulkanDevice Device{ window };
-		std::unique_ptr<Swapchain> swapchain;
-		std::unique_ptr<Pipeline> pipeline;
-		VkPipelineLayout PipelineLayout;
-		std::vector<VkCommandBuffer> CommandBuffers;
+		VulkanDevice Device{ window }; \
+		Renderer renderer{ window, Device };
 		std::vector<GameObject> GameObjects;
 
 

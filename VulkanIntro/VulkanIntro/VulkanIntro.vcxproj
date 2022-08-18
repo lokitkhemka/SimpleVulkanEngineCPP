@@ -160,6 +160,8 @@ pause</Command>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ShaderSystem.cpp" />
     <ClCompile Include="Swapchain.cpp" />
     <ClCompile Include="VulkanDevice.cpp" />
     <ClCompile Include="Pipeline.cpp" />
@@ -169,6 +171,8 @@ pause</Command>
     <ClInclude Include="App.hpp" />
     <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="Model.hpp" />
+    <ClInclude Include="Renderer.hpp" />
+    <ClInclude Include="ShaderSystem.hpp" />
     <ClInclude Include="Swapchain.hpp" />
     <ClInclude Include="VulkanDevice.hpp" />
     <ClInclude Include="Pipeline.hpp" />
