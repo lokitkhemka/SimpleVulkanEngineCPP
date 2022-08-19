@@ -57,7 +57,7 @@ std::vector<VkVertexInputAttributeDescription> vlkn::Model::Vertex::GetAtributeD
 	std::vector<VkVertexInputAttributeDescription> AttrDescriptions(2);
 	AttrDescriptions[0].binding = 0;
 	AttrDescriptions[0].location = 0;
-	AttrDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	AttrDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 	AttrDescriptions[0].offset = offsetof(Vertex, position);
 
 	AttrDescriptions[1].binding = 0;

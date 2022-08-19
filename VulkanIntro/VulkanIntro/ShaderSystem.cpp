@@ -11,8 +11,7 @@
 
 namespace vlkn {
 	struct SimplePushConstantData {
-		glm::mat2 Transform{ 1.0f };
-		glm::vec2 Offset;
+		glm::mat4 Transform{ 1.0f };
 		alignas(16) glm::vec3 Color;
 	};
 
@@ -72,11 +71,12 @@ void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::v
 
 	for (auto& Obj : GameObjects)
 	{
-		Obj.Transform2D.Rotation = glm::mod(Obj.Transform2D.Rotation + 0.001f, glm::two_pi<float>());
+		Obj.Transform.Rotation.y = glm::mod(Obj.Transform.Rotation.y + 0.001f, glm::two_pi<float>());
+		Obj.Transform.Rotation.x = glm::mod(Obj.Transform.Rotation.x + 0.0005f, glm::two_pi<float>());
 		SimplePushConstantData Push{};
-		Push.Offset = Obj.Transform2D.Translation;
+
 		Push.Color = Obj.Color;
-		Push.Transform = Obj.Transform2D.Mat2();
+		Push.Transform = Obj.Transform.Mat4();
 
 		vkCmdPushConstants(CommandBuffer, PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
 		Obj.Model->Bind(CommandBuffer);

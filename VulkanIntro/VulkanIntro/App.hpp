@@ -25,17 +25,10 @@ namespace vlkn {
 
 
 		Window window{WIDTH, HEIGHT, "Vulkan Window"};
-		VulkanDevice Device{ window }; \
+		VulkanDevice Device{ window };
 		Renderer renderer{ window, Device };
 		std::vector<GameObject> GameObjects;
 
-
-		/*void sierpinski(
-			std::vector<Model::Vertex>& vertices,
-			int depth,
-			glm::vec2 left,
-			glm::vec2 right,
-			glm::vec2 top);*/
 
 	};
 }

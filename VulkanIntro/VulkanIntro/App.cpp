@@ -4,6 +4,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include "Model.hpp"
+#include "VulkanDevice.hpp"
 
 #include <stdexcept>
 #include <array>
@@ -56,26 +58,74 @@ void vlkn::App::run()
 //		sierpinski(vertices, depth - 1, leftTop, rightTop, top);
 //	}
 //}
+namespace vlkn {
+    std::unique_ptr<Model> createCubeModel(VulkanDevice& Device, glm::vec3 offset) {
+        std::vector<Model::Vertex> Vertices{
+
+            // left face (white)
+            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
+            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+
+            // right face (yellow)
+            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
+            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+
+            // top face (orange, remember y axis points down)
+            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+
+            // bottom face (red)
+            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+
+            // nose face (blue)
+            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+
+            // tail face (green)
+            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+
+        };
+        for (auto& v : Vertices) {
+            v.position += offset;
+        }
+        return std::make_unique<Model>(Device, Vertices);
+    }
+}
 
 void vlkn::App::LoadGameObjects()
 {
-	std::vector<Model::Vertex> vertices{
-		{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	  {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-	  {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-	};
+    std::shared_ptr<Model> model = createCubeModel(Device, {0.0f, 0.0f, 0.0f});
 
-	/*std::vector<Model::Vertex> vertices{};
-	sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });*/
+    auto Cube = GameObject::CreateGameObject();
+    Cube.Model = model;
 
-	auto model = std::make_shared<Model>(Device, vertices);
-
-	auto Tri = GameObject::CreateGameObject();
-	Tri.Model = model;
-	Tri.Color = { 0.1f, 0.8f, 0.1f };
-	Tri.Transform2D.Translation.x = 0.2f;
-	Tri.Transform2D.Scale = { 2.0f, 0.5f };
-	Tri.Transform2D.Rotation = 0.25f * glm::two_pi<float>();
-
-	GameObjects.push_back(std::move(Tri));
+    Cube.Transform.Translation = { 0.0f, 0.0f, 0.5f };
+    Cube.Transform.Scale = { 0.5f, 0.5f, 0.5f };
+    GameObjects.push_back(std::move(Cube));
 }
