@@ -158,6 +158,7 @@ pause</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -169,6 +170,7 @@ pause</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="GameObject.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="Renderer.hpp" />

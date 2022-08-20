@@ -65,7 +65,7 @@ void vlkn::ShaderSystem::CreatePipeline(VkRenderPass RenderPass)
 }
 
 
-void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::vector<GameObject>& GameObjects)
+void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::vector<GameObject>& GameObjects, const Camera& camera)
 {
 	pipeline->bind(CommandBuffer);
 
@@ -76,7 +76,7 @@ void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::v
 		SimplePushConstantData Push{};
 
 		Push.Color = Obj.Color;
-		Push.Transform = Obj.Transform.Mat4();
+		Push.Transform = camera.GetProjMat() * Obj.Transform.Mat4();
 
 		vkCmdPushConstants(CommandBuffer, PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
 		Obj.Model->Bind(CommandBuffer);

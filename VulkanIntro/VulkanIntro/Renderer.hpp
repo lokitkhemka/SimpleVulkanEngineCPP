@@ -20,6 +20,7 @@ namespace vlkn {
 		Renderer& operator=(const Renderer&) = delete;
 
 		VkRenderPass GetSwapchainRenderPass() const { return swapchain->getRenderPass(); }
+		float GetAspectRatio() const { return swapchain->extentAspectRatio(); }
 		bool IsFrameInProgress() const { return IsFrameStarted; }
 		VkCommandBuffer GetCurrentCB() const 
 		{

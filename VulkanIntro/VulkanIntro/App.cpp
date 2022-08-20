@@ -1,11 +1,11 @@
 #include "App.hpp"
+#include "Camera.hpp"
 #include "ShaderSystem.hpp"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
-#include "Model.hpp"
-#include "VulkanDevice.hpp"
+
 
 #include <stdexcept>
 #include <array>
@@ -23,13 +23,19 @@ vlkn::App::~App()
 void vlkn::App::run()
 {
 	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass()};
+    Camera camera{};
+    
 	while (!window.ShouldClose())
 	{
 		glfwPollEvents();
+        float AspectR = renderer.GetAspectRatio();
+        //camera.SetOrthographicProj(-AspectR, AspectR, -1, 1, -1, 1);
+        camera.SetPerspectiveProj(glm::radians(50.0f), AspectR, 0.1f, 10.0f);
+
 		if (auto CommandBuffer = renderer.BeginFrame())
 		{
 			renderer.BeginSwapchainRenderPass(CommandBuffer);
-			ShaderSys.RenderGameObjects(CommandBuffer, GameObjects);
+			ShaderSys.RenderGameObjects(CommandBuffer, GameObjects,camera);
 			renderer.EndSwapchainRenderPass(CommandBuffer);
 			renderer.EndFrame();
 		}
@@ -38,28 +44,8 @@ void vlkn::App::run()
 	vkDeviceWaitIdle(Device.device());
 }
 
-//void vlkn::App::sierpinski(
-//	std::vector<Model::Vertex>& vertices,
-//	int depth,
-//	glm::vec2 left,
-//	glm::vec2 right,
-//	glm::vec2 top) {
-//	if (depth <= 0) {
-//		vertices.push_back({ top });
-//		vertices.push_back({ right });
-//		vertices.push_back({ left });
-//	}
-//	else {
-//		auto leftTop = 0.5f * (left + top);
-//		auto rightTop = 0.5f * (right + top);
-//		auto leftRight = 0.5f * (left + right);
-//		sierpinski(vertices, depth - 1, left, leftRight, leftTop);
-//		sierpinski(vertices, depth - 1, leftRight, right, rightTop);
-//		sierpinski(vertices, depth - 1, leftTop, rightTop, top);
-//	}
-//}
 namespace vlkn {
-    std::unique_ptr<Model> createCubeModel(VulkanDevice& Device, glm::vec3 offset) {
+    std::unique_ptr<Model> CreateCubeModel(VulkanDevice& Device, glm::vec3 offset) {
         std::vector<Model::Vertex> Vertices{
 
             // left face (white)
@@ -120,12 +106,12 @@ namespace vlkn {
 
 void vlkn::App::LoadGameObjects()
 {
-    std::shared_ptr<Model> model = createCubeModel(Device, {0.0f, 0.0f, 0.0f});
+    std::shared_ptr<Model> model = CreateCubeModel(Device, {0.0f, 0.0f, 0.0f});
 
     auto Cube = GameObject::CreateGameObject();
     Cube.Model = model;
 
-    Cube.Transform.Translation = { 0.0f, 0.0f, 0.5f };
+    Cube.Transform.Translation = { 0.0f, 0.0f, 2.5f };
     Cube.Transform.Scale = { 0.5f, 0.5f, 0.5f };
     GameObjects.push_back(std::move(Cube));
 }
