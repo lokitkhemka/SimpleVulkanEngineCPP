@@ -1,6 +1,8 @@
 #include "App.hpp"
 #include "Camera.hpp"
 #include "ShaderSystem.hpp"
+
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -24,6 +26,7 @@ void vlkn::App::run()
 {
 	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass()};
     Camera camera{};
+    camera.SetViewDir(glm::vec3(0.0f), glm::vec3(0.5f,0.0f, 1.0f));
     
 	while (!window.ShouldClose())
 	{

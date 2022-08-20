@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace vlkn {
-
+	//Model Transform
 	struct TransformComponent {
 		glm::vec3 Translation{};
 		glm::vec3 Scale{1.0f, 1.0f,1.0f};

@@ -69,6 +69,8 @@ void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::v
 {
 	pipeline->bind(CommandBuffer);
 
+	auto ProjView = camera.GetProjMat() * camera.GetViewMat();
+
 	for (auto& Obj : GameObjects)
 	{
 		Obj.Transform.Rotation.y = glm::mod(Obj.Transform.Rotation.y + 0.001f, glm::two_pi<float>());
@@ -76,7 +78,7 @@ void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::v
 		SimplePushConstantData Push{};
 
 		Push.Color = Obj.Color;
-		Push.Transform = camera.GetProjMat() * Obj.Transform.Mat4();
+		Push.Transform = ProjView * Obj.Transform.Mat4();
 
 		vkCmdPushConstants(CommandBuffer, PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
 		Obj.Model->Bind(CommandBuffer);
