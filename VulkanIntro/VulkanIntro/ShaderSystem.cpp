@@ -73,8 +73,6 @@ void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::v
 
 	for (auto& Obj : GameObjects)
 	{
-		Obj.Transform.Rotation.y = glm::mod(Obj.Transform.Rotation.y + 0.001f, glm::two_pi<float>());
-		Obj.Transform.Rotation.x = glm::mod(Obj.Transform.Rotation.x + 0.0005f, glm::two_pi<float>());
 		SimplePushConstantData Push{};
 
 		Push.Color = Obj.Color;

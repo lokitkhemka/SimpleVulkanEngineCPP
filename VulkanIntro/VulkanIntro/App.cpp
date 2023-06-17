@@ -1,6 +1,7 @@
 #include "App.hpp"
 #include "Camera.hpp"
 #include "ShaderSystem.hpp"
+#include "KeyboardController.hpp"
 
 
 #define GLM_FORCE_RADIANS
@@ -12,6 +13,7 @@
 #include <stdexcept>
 #include <array>
 #include <cassert>
+#include <chrono>
 
 vlkn::App::App()
 {
@@ -26,14 +28,30 @@ void vlkn::App::run()
 {
 	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass()};
     Camera camera{};
-    camera.SetViewDir(glm::vec3(0.0f), glm::vec3(0.5f,0.0f, 1.0f));
+    camera.SetViewDir(glm::vec3(-1.0f, -2.0f, -2.0f), glm::vec3(0.0f,0.0f, 2.5f));
     
+    auto ViewerObject = GameObject::CreateGameObject();
+    KeyboardController CameraController{};
+
+    auto CurrentTime = std::chrono::high_resolution_clock::now();
+
 	while (!window.ShouldClose())
 	{
 		glfwPollEvents();
+
+        auto NewTime = std::chrono::high_resolution_clock::now();
+        float FrameTime = std::chrono::duration<float, std::chrono::seconds::period>(NewTime - CurrentTime).count();
+        CurrentTime = NewTime;
+
+        //FrameTime = glm::min(FrameTime, MAX_FRAME_TIME);
+
+        CameraController.MoveInPlaneXZ(window.getWindowHandle(), FrameTime, ViewerObject);
+        camera.SetViewYXZ(ViewerObject.Transform.Translation, ViewerObject.Transform.Rotation);
+
         float AspectR = renderer.GetAspectRatio();
         //camera.SetOrthographicProj(-AspectR, AspectR, -1, 1, -1, 1);
         camera.SetPerspectiveProj(glm::radians(50.0f), AspectR, 0.1f, 10.0f);
+
 
 		if (auto CommandBuffer = renderer.BeginFrame())
 		{
@@ -49,7 +67,8 @@ void vlkn::App::run()
 
 namespace vlkn {
     std::unique_ptr<Model> CreateCubeModel(VulkanDevice& Device, glm::vec3 offset) {
-        std::vector<Model::Vertex> Vertices{
+        Model::ModelData Data{};
+        Data.vertices = {
 
             // left face (white)
             {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
@@ -100,10 +119,10 @@ namespace vlkn {
             {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
 
         };
-        for (auto& v : Vertices) {
+        for (auto& v : Data.vertices) {
             v.position += offset;
         }
-        return std::make_unique<Model>(Device, Vertices);
+        return std::make_unique<Model>(Device, Data);
     }
 }
 

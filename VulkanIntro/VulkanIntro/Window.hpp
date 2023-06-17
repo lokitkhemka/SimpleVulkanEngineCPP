@@ -20,6 +20,8 @@ namespace vlkn {
 		bool WasWindowResized() { return FramebufferResized; }
 		void ResetWindowResizedFlag() { FramebufferResized = false; }
 
+		GLFWwindow* getWindowHandle() const { return WindowHandle; }
+
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 	private:
 		static void FramebufferResizedCallback(GLFWwindow *window, int Width, int Height);

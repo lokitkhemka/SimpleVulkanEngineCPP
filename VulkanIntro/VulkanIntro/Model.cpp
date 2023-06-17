@@ -3,15 +3,21 @@
 #include <cassert>
 #include <cstring>
 
-vlkn::Model::Model(VulkanDevice& Device, const std::vector<Vertex>& vertices): Device{Device}
+vlkn::Model::Model(VulkanDevice& Device, const Model::ModelData& Data): Device{Device}
 {
-	CreateVertexBuffers(vertices);
+	CreateVertexBuffers(Data.vertices);
+	CreateIndexBuffer(Data.indices);
 }
 
 vlkn::Model::~Model()
 {
 	vkDestroyBuffer(Device.device(), VertexBuffer, nullptr);
 	vkFreeMemory(Device.device(), VertexBufferMemory, nullptr);
+
+	if (HasIndexBuffer) {
+		vkDestroyBuffer(Device.device(), IndexBuffer, nullptr);
+		vkFreeMemory(Device.device(), IndexBufferMemory, nullptr);
+	}
 }
 
 void vlkn::Model::Bind(VkCommandBuffer CommandBuffer)
@@ -19,11 +25,21 @@ void vlkn::Model::Bind(VkCommandBuffer CommandBuffer)
 	VkBuffer buffers[] = { VertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(CommandBuffer, 0, 1, buffers, offsets);
+
+	if (HasIndexBuffer)
+	{
+		vkCmdBindIndexBuffer(CommandBuffer, IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+	}
 }
 
 void vlkn::Model::Draw(VkCommandBuffer CommandBuffer)
 {
-	vkCmdDraw(CommandBuffer, VertexCount, 1, 0, 0);
+	if (HasIndexBuffer) {
+		vkCmdDrawIndexed(CommandBuffer, IndexCount, 1, 0, 0, 0);
+	}
+	else {
+		vkCmdDraw(CommandBuffer, VertexCount, 1, 0, 0);
+	}
 }
 
 void vlkn::Model::CreateVertexBuffers(const std::vector<Vertex>& vertices)
@@ -41,6 +57,27 @@ void vlkn::Model::CreateVertexBuffers(const std::vector<Vertex>& vertices)
 	vkMapMemory(Device.device(), VertexBufferMemory, 0, BufferSize, 0, &data);
 	memcpy(data, vertices.data(), static_cast<size_t>(BufferSize));
 	vkUnmapMemory(Device.device(), VertexBufferMemory);
+}
+
+void vlkn::Model::CreateIndexBuffer(const std::vector<uint32_t>& indices)
+{
+	IndexCount = static_cast<uint32_t>(indices.size());
+	HasIndexBuffer = IndexCount > 0;
+	if (!HasIndexBuffer)
+	{
+		return;
+	}
+	VkDeviceSize BufferSize = sizeof(indices[0]) * IndexCount;
+
+	Device.createBuffer(BufferSize,
+		VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		IndexBuffer, IndexBufferMemory);
+
+	void* data;
+	vkMapMemory(Device.device(), IndexBufferMemory, 0, BufferSize, 0, &data);
+	memcpy(data, indices.data(), static_cast<size_t>(BufferSize));
+	vkUnmapMemory(Device.device(), IndexBufferMemory);
 }
 
 std::vector<VkVertexInputBindingDescription> vlkn::Model::Vertex::GetBindingDescriptions()

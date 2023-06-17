@@ -19,7 +19,13 @@ namespace vlkn {
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> GetAtributeDescriptions();
 		};
-		Model(VulkanDevice& Device, const std::vector<Vertex>& vertices);
+
+		struct ModelData {
+			std::vector<Vertex> vertices{};
+			std::vector<uint32_t> indices{};
+		};
+
+		Model(VulkanDevice& Device, const Model::ModelData &Data);
 		~Model();
 
 		Model(const Model&) = delete;
@@ -34,6 +40,12 @@ namespace vlkn {
 		uint32_t VertexCount;
 
 		void CreateVertexBuffers(const std::vector<Vertex> &vertices);
+
+		bool HasIndexBuffer = false;
+		VkBuffer IndexBuffer;
+		VkDeviceMemory IndexBufferMemory;
+		uint32_t IndexCount;
+		void CreateIndexBuffer(const std::vector<uint32_t>& indices);
 	};
 
 }
