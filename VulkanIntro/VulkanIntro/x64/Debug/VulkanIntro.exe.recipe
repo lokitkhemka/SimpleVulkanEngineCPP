@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\CPPProjects\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe</FullPath>
+      <FullPath>D:\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

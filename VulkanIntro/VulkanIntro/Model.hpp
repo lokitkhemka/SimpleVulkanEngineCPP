@@ -6,6 +6,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace vlkn {
@@ -13,8 +14,11 @@ namespace vlkn {
 	{
 	public:
 		struct Vertex {
-			glm::vec3 position;
-			glm::vec3 color;
+			glm::vec3 position{};
+			glm::vec3 color{};
+			glm::vec3 normal{};
+			glm::vec2 uv{};
+
 
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> GetAtributeDescriptions();
@@ -23,6 +27,8 @@ namespace vlkn {
 		struct ModelData {
 			std::vector<Vertex> vertices{};
 			std::vector<uint32_t> indices{};
+
+			void LoadModel(const std::string& filepath);
 		};
 
 		Model(VulkanDevice& Device, const Model::ModelData &Data);
@@ -30,6 +36,8 @@ namespace vlkn {
 
 		Model(const Model&) = delete;
 		Model& operator=(const Model&) = delete;
+
+		static std::unique_ptr<Model> CreateModelFromObj(VulkanDevice& device, const std::string& filepath);
 
 		void Bind(VkCommandBuffer CommandBuffer);
 		void Draw(VkCommandBuffer CommandBuffer);
@@ -49,4 +57,3 @@ namespace vlkn {
 	};
 
 }
-
