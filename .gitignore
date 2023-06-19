@@ -2,3 +2,5 @@
 x64/
 Debug/
 x64/
+.vscode/
+VulkanIntro/x64/Debug/
