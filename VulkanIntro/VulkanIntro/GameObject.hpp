@@ -11,15 +11,10 @@ namespace vlkn {
 		glm::vec3 Translation{};
 		glm::vec3 Scale{1.0f, 1.0f,1.0f};
 		glm::vec3 Rotation{};
-		glm::mat4 Mat4() {
-			auto Transform = glm::translate(glm::mat4(1.0f), Translation);
-			Transform = glm::rotate(Transform, Rotation.y, {0.0f,1.0f,0.0f});
-			Transform = glm::rotate(Transform, Rotation.x, { 1.0f,0.0f,0.0f });
-			Transform = glm::rotate(Transform, Rotation.z, { 0.0f,0.0f,1.0f });
-			Transform = glm::scale(Transform, Scale);
-			return Transform;
-		}
+		glm::mat4 Mat4();
+		glm::mat3 NormalMatrix();
 	};
+
 
 	class GameObject {
 	public:
