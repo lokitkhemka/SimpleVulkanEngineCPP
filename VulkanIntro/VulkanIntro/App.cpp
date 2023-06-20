@@ -71,12 +71,12 @@ namespace vlkn {
 
     void vlkn::App::LoadGameObjects()
     {
-        std::shared_ptr<Model> model = Model::CreateModelFromObj(Device, "./models/smooth_vase.obj");
+        std::shared_ptr<Model> model = Model::CreateModelFromObj(Device, "./models/flat_vase.obj");
 
         auto GameObj = GameObject::CreateGameObject();
         GameObj.Model = model;
 
-        GameObj.Transform.Translation = { 0.0f, 0.0f, 2.5f };
+        GameObj.Transform.Translation = { 0.0f, 0.5f, 2.5f };
         GameObj.Transform.Scale = { 0.5f, 0.5f, 0.5f };
         GameObjects.push_back(std::move(GameObj));
     }

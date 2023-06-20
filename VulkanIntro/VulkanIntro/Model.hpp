@@ -22,6 +22,11 @@ namespace vlkn {
 
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> GetAtributeDescriptions();
+
+			bool operator==(const Vertex& other) const
+			{
+				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+			}
 		};
 
 		struct ModelData {

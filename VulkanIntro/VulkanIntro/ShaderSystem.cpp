@@ -12,7 +12,7 @@
 namespace vlkn {
 	struct SimplePushConstantData {
 		glm::mat4 Transform{ 1.0f };
-		alignas(16) glm::vec3 Color;
+		glm::mat4 ModelMatrix{ 1.0f };
 	};
 
 }
@@ -75,8 +75,9 @@ void vlkn::ShaderSystem::RenderGameObjects(VkCommandBuffer CommandBuffer, std::v
 	{
 		SimplePushConstantData Push{};
 
-		Push.Color = Obj.Color;
-		Push.Transform = ProjView * Obj.Transform.Mat4();
+		auto ModelMatrix = Obj.Transform.Mat4();
+		Push.Transform = ProjView * ModelMatrix;
+		Push.ModelMatrix = ModelMatrix;
 
 		vkCmdPushConstants(CommandBuffer, PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &Push);
 		Obj.Model->Bind(CommandBuffer);

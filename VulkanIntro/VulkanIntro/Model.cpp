@@ -1,11 +1,30 @@
 #include "Model.hpp"
 
+#include "Utils.hpp"
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
+
+
+namespace std {
+	template <>
+	struct hash<vlkn::Model::Vertex>
+	{
+		size_t operator()(vlkn::Model::Vertex const& vertex) const
+		{
+			size_t seed = 0;
+			vlkn::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+			return seed;
+		}
+	};
+}
 
 vlkn::Model::Model(VulkanDevice& Device, const Model::ModelData& Data): Device{Device}
 {
@@ -130,16 +149,14 @@ std::vector<VkVertexInputBindingDescription> vlkn::Model::Vertex::GetBindingDesc
 
 std::vector<VkVertexInputAttributeDescription> vlkn::Model::Vertex::GetAtributeDescriptions()
 {
-	std::vector<VkVertexInputAttributeDescription> AttrDescriptions(2);
-	AttrDescriptions[0].binding = 0;
-	AttrDescriptions[0].location = 0;
-	AttrDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-	AttrDescriptions[0].offset = offsetof(Vertex, position);
+	std::vector<VkVertexInputAttributeDescription> AttrDescriptions{};
 
-	AttrDescriptions[1].binding = 0;
-	AttrDescriptions[1].location = 1;
-	AttrDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	AttrDescriptions[1].offset = offsetof(Vertex, color);
+	AttrDescriptions.push_back({ 0,0,VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
+	AttrDescriptions.push_back({ 1,0,VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
+	AttrDescriptions.push_back({ 2,0,VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
+	AttrDescriptions.push_back({ 3,0,VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
+	
+	
 	return AttrDescriptions;
 }
 
@@ -156,6 +173,8 @@ void vlkn::Model::ModelData::LoadModel(const std::string& filepath)
 
 	vertices.clear(); indices.clear();
 
+	std::unordered_map<Vertex, uint32_t> UniqueVertices{};
+
 	for (const auto& shape : shapes)
 	{
 		for (const auto& index : shape.mesh.indices)
@@ -167,17 +186,10 @@ void vlkn::Model::ModelData::LoadModel(const std::string& filepath)
 									attrib.vertices[3 * index.vertex_index + 1],
 									attrib.vertices[3 * index.vertex_index + 2] };
 
-				auto colorIndex = 3 * index.vertex_index + 2;
-				if (colorIndex < attrib.colors.size())
-				{
-					vertex.color = {attrib.colors[colorIndex - 2],
-									attrib.colors[colorIndex - 1], 
-									attrib.colors[colorIndex - 0], };
-				}
-				else
-				{
-					vertex.color = { 1.0f, 1.0f, 1.0f };
-				}
+				vertex.color = {attrib.colors[3* index.vertex_index + 0],
+								attrib.colors[3* index.vertex_index + 1], 
+								attrib.colors[3* index.vertex_index + 2], };
+				
 			}
 
 			if (index.normal_index >= 0)
@@ -194,7 +206,11 @@ void vlkn::Model::ModelData::LoadModel(const std::string& filepath)
 									};
 			}
 
-			vertices.push_back(vertex);
+			if (UniqueVertices.count(vertex) == 0) {
+				UniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(vertex);
+			}
+			indices.push_back(UniqueVertices[vertex]);
 		}
 	}
 

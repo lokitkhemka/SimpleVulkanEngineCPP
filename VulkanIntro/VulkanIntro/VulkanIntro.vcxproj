@@ -130,6 +130,9 @@
 C:\VulkanSDK\1.3.211.0\Bin\glslc.exe .\shaders\shader.frag -o .\shaders\shader.frag.spv
 pause</Command>
     </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>call $(SolutionDir)VulkanIntro\compile.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -178,6 +181,7 @@ pause</Command>
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="ShaderSystem.hpp" />
     <ClInclude Include="Swapchain.hpp" />
+    <ClInclude Include="Utils.hpp" />
     <ClInclude Include="VulkanDevice.hpp" />
     <ClInclude Include="Pipeline.hpp" />
     <ClInclude Include="Window.hpp" />

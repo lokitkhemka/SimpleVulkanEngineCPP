@@ -1,3 +1,9 @@
 ﻿  App.cpp
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  VulkanIntro.vcxproj -> D:\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
+  VulkanIntro.vcxproj -> D:\CPPProjects\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
+  .\shaders\shader.vert:25: error: '=' :  cannot convert from ' global 3X3 matrix of float' to ' temp highp 3-component vector of float'
+  1 error generated.
+  .\shaders\shader.frag.spv
+  .\shaders\shader.vert
+  2 File(s) copied
+  0 File(s) copied
+  Press any key to continue . . . 

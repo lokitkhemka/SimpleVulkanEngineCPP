@@ -83,6 +83,9 @@
     <ClInclude Include="KeyboardController.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utils.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.bat">
