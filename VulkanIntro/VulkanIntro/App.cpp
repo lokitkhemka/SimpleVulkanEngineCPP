@@ -2,6 +2,7 @@
 #include "Camera.hpp"
 #include "ShaderSystem.hpp"
 #include "KeyboardController.hpp"
+#include "VulkanBufferObjects.hpp"
 
 
 #define GLM_FORCE_RADIANS
@@ -15,6 +16,13 @@
 #include <cassert>
 #include <chrono>
 
+namespace vlkn {
+    struct GlobalUBO {
+        glm::mat4 ProjectionView{ 1.0f };
+        glm::vec3 LightDirection = glm::normalize(glm::vec3{1.0f, -3.0f, -1.0f});
+    };
+}
+
 vlkn::App::App()
 {
 	LoadGameObjects();
@@ -26,6 +34,15 @@ vlkn::App::~App()
 
 void vlkn::App::run()
 {
+    VulkanBufferObjects GlobalUBOBuffer{
+    Device, sizeof(vlkn::GlobalUBO), vlkn::Swapchain::MAX_FRAMES_IN_FLIGHT,
+    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+    Device.properties.limits.minUniformBufferOffsetAlignment
+    };
+    GlobalUBOBuffer.Map();
+
+
 	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass()};
     Camera camera{};
     camera.SetViewDir(glm::vec3(-1.0f, -2.0f, -2.0f), glm::vec3(0.0f,0.0f, 2.5f));
@@ -55,6 +72,13 @@ void vlkn::App::run()
 
 		if (auto CommandBuffer = renderer.BeginFrame())
 		{
+            int FrameIndex = renderer.GetFrameIndex();
+            //Update Buffers
+            GlobalUBO ubo{};
+            ubo.ProjectionView = camera.GetProjMat() * camera.GetViewMat();
+            GlobalUBOBuffer.WriteToIndex(&ubo, FrameIndex);
+            GlobalUBOBuffer.FlushIndex(FrameIndex);
+            //Render
 			renderer.BeginSwapchainRenderPass(CommandBuffer);
 			ShaderSys.RenderGameObjects(CommandBuffer, GameObjects,camera);
 			renderer.EndSwapchainRenderPass(CommandBuffer);
@@ -69,9 +93,9 @@ namespace vlkn {
 
 
 
-    void vlkn::App::LoadGameObjects()
+    void App::LoadGameObjects()
     {
-        std::shared_ptr<Model> model = Model::CreateModelFromObj(Device, "./models/flat_vase.obj");
+        std::shared_ptr<Model> model = Model::CreateModelFromObj(Device, "./models/smooth_vase.obj");
 
         auto GameObj = GameObject::CreateGameObject();
         GameObj.Model = model;

@@ -169,6 +169,7 @@ pause</Command>
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ShaderSystem.cpp" />
     <ClCompile Include="Swapchain.cpp" />
+    <ClCompile Include="VulkanBufferObjects.cpp" />
     <ClCompile Include="VulkanDevice.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -183,6 +184,7 @@ pause</Command>
     <ClInclude Include="ShaderSystem.hpp" />
     <ClInclude Include="Swapchain.hpp" />
     <ClInclude Include="Utils.hpp" />
+    <ClInclude Include="VulkanBufferObjects.hpp" />
     <ClInclude Include="VulkanDevice.hpp" />
     <ClInclude Include="Pipeline.hpp" />
     <ClInclude Include="Window.hpp" />

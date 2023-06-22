@@ -51,6 +51,9 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VulkanBufferObjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.hpp">
@@ -61,15 +64,6 @@
     </ClInclude>
     <ClInclude Include="Pipeline.hpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanDevice.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Swapchain.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.hpp">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.hpp">
       <Filter>Source Files</Filter>
@@ -87,6 +81,18 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanBufferObjects.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanDevice.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Swapchain.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

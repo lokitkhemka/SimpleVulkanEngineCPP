@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VulkanDevice.hpp"
+#include "VulkanBufferObjects.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -48,16 +49,15 @@ namespace vlkn {
 		void Draw(VkCommandBuffer CommandBuffer);
 	private:
 		VulkanDevice& Device;
-		VkBuffer VertexBuffer;
-		VkDeviceMemory VertexBufferMemory;
+		std::unique_ptr<VulkanBufferObjects> VertexBuffer;
 		uint32_t VertexCount;
 
 		void CreateVertexBuffers(const std::vector<Vertex> &vertices);
 
 		bool HasIndexBuffer = false;
-		VkBuffer IndexBuffer;
-		VkDeviceMemory IndexBufferMemory;
+		std::unique_ptr<VulkanBufferObjects> IndexBuffer;
 		uint32_t IndexCount;
+
 		void CreateIndexBuffer(const std::vector<uint32_t>& indices);
 	};
 
