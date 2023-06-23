@@ -15,6 +15,7 @@
 #include <array>
 #include <cassert>
 #include <chrono>
+#include <numeric>
 
 namespace vlkn {
     struct GlobalUBO {
@@ -34,13 +35,17 @@ vlkn::App::~App()
 
 void vlkn::App::run()
 {
-    VulkanBufferObjects GlobalUBOBuffer{
-    Device, sizeof(vlkn::GlobalUBO), vlkn::Swapchain::MAX_FRAMES_IN_FLIGHT,
-    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-    Device.properties.limits.minUniformBufferOffsetAlignment
-    };
-    GlobalUBOBuffer.Map();
+    std::vector<std::unique_ptr<VulkanBufferObjects>> uboBuffers(Swapchain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < uboBuffers.size(); i++) {
+        uboBuffers[i] = std::make_unique<VulkanBufferObjects>(
+            Device,
+            sizeof(GlobalUBO),
+            1,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        uboBuffers[i]->Map();
+    }
+    
 
 
 	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass()};
@@ -76,8 +81,8 @@ void vlkn::App::run()
             //Update Buffers
             GlobalUBO ubo{};
             ubo.ProjectionView = camera.GetProjMat() * camera.GetViewMat();
-            GlobalUBOBuffer.WriteToIndex(&ubo, FrameIndex);
-            GlobalUBOBuffer.FlushIndex(FrameIndex);
+            uboBuffers[FrameIndex]->WriteToBuffer(&ubo);
+            uboBuffers[FrameIndex]->Flush();
             //Render
 			renderer.BeginSwapchainRenderPass(CommandBuffer);
 			ShaderSys.RenderGameObjects(CommandBuffer, GameObjects,camera);
