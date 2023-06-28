@@ -20,20 +20,24 @@
 namespace vlkn {
     struct GlobalUBO {
         glm::mat4 ProjectionView{ 1.0f };
-        glm::vec3 LightDirection = glm::normalize(glm::vec3{1.0f, -3.0f, -1.0f});
+        glm::vec3 LightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, -1.0f });
     };
-}
 
-vlkn::App::App()
-{
-	LoadGameObjects();
-}
 
-vlkn::App::~App()
-{
-}
+    App::App()
+    {
+        GlobalPool = VulkanDescriptorPool::Builder(Device).SetMaxSets(Swapchain::MAX_FRAMES_IN_FLIGHT)
+            .AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Swapchain::MAX_FRAMES_IN_FLIGHT).Build();
+        LoadGameObjects();
+    }
 
-void vlkn::App::run()
+    App::~App()
+    {
+    }
+
+
+
+void App::run()
 {
     std::vector<std::unique_ptr<VulkanBufferObjects>> uboBuffers(Swapchain::MAX_FRAMES_IN_FLIGHT);
     for (int i = 0; i < uboBuffers.size(); i++) {
@@ -46,9 +50,18 @@ void vlkn::App::run()
         uboBuffers[i]->Map();
     }
     
+    auto GlobalSetLayout = VulkanDescriptorSetLayout::Builder(Device)
+        .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,  VK_SHADER_STAGE_VERTEX_BIT).Build();
 
+    std::vector<VkDescriptorSet> GlobalDescriptorSets(Swapchain::MAX_FRAMES_IN_FLIGHT);
 
-	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass()};
+    for (int i = 0; i < GlobalDescriptorSets.size(); i++)
+    {
+        auto BufferInfo = uboBuffers[i]->DescriptorInfo();
+        VulkanDescriptorWriter(*GlobalSetLayout, *GlobalPool).WriteBuffer(0, &BufferInfo).Build(GlobalDescriptorSets[i]);
+    }
+
+	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass(), GlobalSetLayout->GetDescriptorSetLayout()};
     Camera camera{};
     camera.SetViewDir(glm::vec3(-1.0f, -2.0f, -2.0f), glm::vec3(0.0f,0.0f, 2.5f));
     
@@ -78,6 +91,9 @@ void vlkn::App::run()
 		if (auto CommandBuffer = renderer.BeginFrame())
 		{
             int FrameIndex = renderer.GetFrameIndex();
+
+            FrameInfo frameInfo{ FrameIndex, FrameTime, CommandBuffer, camera, GlobalDescriptorSets[FrameIndex] };
+
             //Update Buffers
             GlobalUBO ubo{};
             ubo.ProjectionView = camera.GetProjMat() * camera.GetViewMat();
@@ -85,13 +101,15 @@ void vlkn::App::run()
             uboBuffers[FrameIndex]->Flush();
             //Render
 			renderer.BeginSwapchainRenderPass(CommandBuffer);
-			ShaderSys.RenderGameObjects(CommandBuffer, GameObjects,camera);
+			ShaderSys.RenderGameObjects(frameInfo, GameObjects);
 			renderer.EndSwapchainRenderPass(CommandBuffer);
 			renderer.EndFrame();
 		}
 	}
 
 	vkDeviceWaitIdle(Device.device());
+}
+
 }
 
 namespace vlkn {

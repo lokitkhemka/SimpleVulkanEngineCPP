@@ -4,6 +4,7 @@
 #include "VulkanDevice.hpp"
 #include "Renderer.hpp"
 #include "GameObject.hpp"
+#include "VulkanDescriptors.hpp"
 
 #include <memory>
 #include <vector>
@@ -27,6 +28,8 @@ namespace vlkn {
 		Window window{WIDTH, HEIGHT, "Vulkan Window"};
 		VulkanDevice Device{ window };
 		Renderer renderer{ window, Device };
+
+		std::unique_ptr<VulkanDescriptorPool> GlobalPool{};
 		std::vector<GameObject> GameObjects;
 
 

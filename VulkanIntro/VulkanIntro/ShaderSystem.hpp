@@ -4,6 +4,7 @@
 #include "VulkanDevice.hpp"
 #include "GameObject.hpp"
 #include "Camera.hpp"
+#include "FrameInfo.hpp"
 
 #include <memory>
 #include <vector>
@@ -12,15 +13,15 @@ namespace vlkn {
 	class ShaderSystem{
 	public:
 
-		ShaderSystem(VulkanDevice& Device, VkRenderPass RenderPass);
+		ShaderSystem(VulkanDevice& Device, VkRenderPass RenderPass, VkDescriptorSetLayout globalSetLayout);
 		~ShaderSystem();
 
 		ShaderSystem(const ShaderSystem&) = delete;
 		ShaderSystem& operator=(const ShaderSystem&) = delete;
 
-		void RenderGameObjects(VkCommandBuffer CommandBuffer, std::vector<GameObject>& GameObjects, const Camera& camera);
+		void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& GameObjects);
 	private:
-		void CreatePipelineLayout();
+		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void CreatePipeline(VkRenderPass RenderPass);
 		
 		VulkanDevice& Device;

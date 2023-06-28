@@ -1,25 +1,9 @@
-﻿  App.cpp
-  Camera.cpp
-  GameObject.cpp
-  KeyboardController.cpp
-  main.cpp
-  Model.cpp
-  Renderer.cpp
-  ShaderSystem.cpp
-  Swapchain.cpp
-  VulkanBufferObjects.cpp
-  VulkanDevice.cpp
-  Pipeline.cpp
-  Window.cpp
-  Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  VulkanIntro.vcxproj -> D:\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
+﻿  ShaderSystem.cpp
+  VulkanIntro.vcxproj -> D:\CPPProjects\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
+  .\shaders\shader.frag
   .\shaders\shader.frag.spv
+  .\shaders\shader.vert
   .\shaders\shader.vert.spv
-  2 File(s) copied
-  .\models\colored_cube.obj
-  .\models\cube.obj
-  .\models\flat_vase.obj
-  .\models\smooth_vase.obj
   4 File(s) copied
+  0 File(s) copied
   Press any key to continue . . . 
