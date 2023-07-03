@@ -1,9 +1,8 @@
-﻿  ShaderSystem.cpp
+﻿  App.cpp
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   VulkanIntro.vcxproj -> D:\CPPProjects\SimpleVulkanEngineCPP\VulkanIntro\x64\Debug\VulkanIntro.exe
-  .\shaders\shader.frag
   .\shaders\shader.frag.spv
-  .\shaders\shader.vert
   .\shaders\shader.vert.spv
-  4 File(s) copied
+  2 File(s) copied
   0 File(s) copied
   Press any key to continue . . . 

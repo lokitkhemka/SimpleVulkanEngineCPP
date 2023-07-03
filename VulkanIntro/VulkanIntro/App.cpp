@@ -20,7 +20,10 @@
 namespace vlkn {
     struct GlobalUBO {
         glm::mat4 ProjectionView{ 1.0f };
-        glm::vec3 LightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, -1.0f });
+        glm::vec4 ambientLightColor{ 1.0f,1.0f, 1.0f,0.02f };
+        glm::vec3 lightPosition{ -1.0f };
+        alignas(16) glm::vec4 lightColor{ 1.0f, 1.0f, 1.0f, 5.f }; //4th component is the light intensity
+
     };
 
 
@@ -63,9 +66,10 @@ void App::run()
 
 	ShaderSystem ShaderSys{Device, renderer.GetSwapchainRenderPass(), GlobalSetLayout->GetDescriptorSetLayout()};
     Camera camera{};
-    camera.SetViewDir(glm::vec3(-1.0f, -2.0f, -2.0f), glm::vec3(0.0f,0.0f, 2.5f));
+    //camera.SetViewDir(glm::vec3(0.0f, -0.5f, -2.0f), glm::vec3(0.0f, 0.0f, 2.5f));
     
     auto ViewerObject = GameObject::CreateGameObject();
+    ViewerObject.Transform.Translation.z = -2.5f;
     KeyboardController CameraController{};
 
     auto CurrentTime = std::chrono::high_resolution_clock::now();
@@ -85,7 +89,7 @@ void App::run()
 
         float AspectR = renderer.GetAspectRatio();
         //camera.SetOrthographicProj(-AspectR, AspectR, -1, 1, -1, 1);
-        camera.SetPerspectiveProj(glm::radians(50.0f), AspectR, 0.1f, 10.0f);
+        camera.SetPerspectiveProj(glm::radians(50.0f), AspectR, 0.1f, 100.0f);
 
 
 		if (auto CommandBuffer = renderer.BeginFrame())
@@ -123,8 +127,16 @@ namespace vlkn {
         auto GameObj = GameObject::CreateGameObject();
         GameObj.Model = model;
 
-        GameObj.Transform.Translation = { 0.0f, 0.5f, 2.5f };
+        GameObj.Transform.Translation = { 0.0f, 0.5f, 0.5f };
         GameObj.Transform.Scale = { 0.5f, 0.5f, 0.5f };
         GameObjects.push_back(std::move(GameObj));
+
+        model = Model::CreateModelFromObj(Device, "./models/quad.obj");
+        auto Floor = GameObject::CreateGameObject();
+        Floor.Model = model;
+
+        Floor.Transform.Translation = { 0.0f, 0.5f, 0.0f };
+        Floor.Transform.Scale = { 3.0f, 0.5f, 3.0f };
+        GameObjects.push_back(std::move(Floor));
     }
 }
