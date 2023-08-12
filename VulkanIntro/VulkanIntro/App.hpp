@@ -30,7 +30,7 @@ namespace vlkn {
 		Renderer renderer{ window, Device };
 
 		std::unique_ptr<VulkanDescriptorPool> GlobalPool{};
-		std::vector<GameObject> GameObjects;
+		GameObject::Map GameObjects;
 
 
 	};

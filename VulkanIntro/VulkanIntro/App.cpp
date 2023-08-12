@@ -22,7 +22,7 @@ namespace vlkn {
         glm::mat4 ProjectionView{ 1.0f };
         glm::vec4 ambientLightColor{ 1.0f,1.0f, 1.0f,0.02f };
         glm::vec3 lightPosition{ -1.0f };
-        alignas(16) glm::vec4 lightColor{ 1.0f, 1.0f, 1.0f, 5.f }; //4th component is the light intensity
+        alignas(16) glm::vec4 lightColor{ 1.0f, 1.0f, 1.0f, 1.2f }; //4th component is the light intensity
 
     };
 
@@ -54,7 +54,7 @@ void App::run()
     }
     
     auto GlobalSetLayout = VulkanDescriptorSetLayout::Builder(Device)
-        .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,  VK_SHADER_STAGE_VERTEX_BIT).Build();
+        .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,  VK_SHADER_STAGE_ALL_GRAPHICS).Build();
 
     std::vector<VkDescriptorSet> GlobalDescriptorSets(Swapchain::MAX_FRAMES_IN_FLIGHT);
 
@@ -96,7 +96,7 @@ void App::run()
 		{
             int FrameIndex = renderer.GetFrameIndex();
 
-            FrameInfo frameInfo{ FrameIndex, FrameTime, CommandBuffer, camera, GlobalDescriptorSets[FrameIndex] };
+            FrameInfo frameInfo{ FrameIndex, FrameTime, CommandBuffer, camera, GlobalDescriptorSets[FrameIndex], GameObjects };
 
             //Update Buffers
             GlobalUBO ubo{};
@@ -105,7 +105,7 @@ void App::run()
             uboBuffers[FrameIndex]->Flush();
             //Render
 			renderer.BeginSwapchainRenderPass(CommandBuffer);
-			ShaderSys.RenderGameObjects(frameInfo, GameObjects);
+			ShaderSys.RenderGameObjects(frameInfo);
 			renderer.EndSwapchainRenderPass(CommandBuffer);
 			renderer.EndFrame();
 		}
@@ -129,7 +129,7 @@ namespace vlkn {
 
         GameObj.Transform.Translation = { 0.0f, 0.5f, 0.5f };
         GameObj.Transform.Scale = { 0.5f, 0.5f, 0.5f };
-        GameObjects.push_back(std::move(GameObj));
+        GameObjects.emplace(GameObj.GetId(),std::move(GameObj));
 
         model = Model::CreateModelFromObj(Device, "./models/quad.obj");
         auto Floor = GameObject::CreateGameObject();
@@ -137,6 +137,6 @@ namespace vlkn {
 
         Floor.Transform.Translation = { 0.0f, 0.5f, 0.0f };
         Floor.Transform.Scale = { 3.0f, 0.5f, 3.0f };
-        GameObjects.push_back(std::move(Floor));
+        GameObjects.emplace(Floor.GetId(), std::move(Floor));
     }
 }

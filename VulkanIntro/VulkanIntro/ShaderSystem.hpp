@@ -19,7 +19,7 @@ namespace vlkn {
 		ShaderSystem(const ShaderSystem&) = delete;
 		ShaderSystem& operator=(const ShaderSystem&) = delete;
 
-		void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& GameObjects);
+		void RenderGameObjects(FrameInfo& frameInfo);
 	private:
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void CreatePipeline(VkRenderPass RenderPass);

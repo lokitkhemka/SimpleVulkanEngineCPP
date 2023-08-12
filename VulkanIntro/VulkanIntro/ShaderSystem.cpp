@@ -66,7 +66,7 @@ void vlkn::ShaderSystem::CreatePipeline(VkRenderPass RenderPass)
 }
 
 
-void vlkn::ShaderSystem::RenderGameObjects(FrameInfo & frameInfo, std::vector<GameObject>& GameObjects)
+void vlkn::ShaderSystem::RenderGameObjects(FrameInfo & frameInfo)
 {
 	pipeline->bind(frameInfo.CommandBuffer);\
 
@@ -74,11 +74,13 @@ void vlkn::ShaderSystem::RenderGameObjects(FrameInfo & frameInfo, std::vector<Ga
 			frameInfo.CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout,
 			0, 1, &frameInfo.GlobalDescriptorSet, 0, nullptr);
 
-	for (auto& Obj : GameObjects)
+	for (auto& kv : frameInfo.GameObjects)
 	{
-		SimplePushConstantData Push{};
-
+		auto& Obj = kv.second;
 		
+		if (Obj.Model == nullptr) continue;
+
+		SimplePushConstantData Push{};
 
 		Push.ModelMatrix = Obj.Transform.Mat4();
 		Push.NormalMatrix = Obj.Transform.NormalMatrix();
